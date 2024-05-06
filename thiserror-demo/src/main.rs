@@ -1,3 +1,4 @@
+#![feature(error_generic_member_access)]
 use std::{backtrace::Backtrace, io, num::ParseIntError};
 
 use thiserror::Error;
@@ -28,7 +29,7 @@ pub struct MyError {
 }
 
 #[derive(Error, Debug)]
-#[error("invalid rdo_lookahead_frames {msg}")]
+#[error("error {msg}")]
 pub struct CutomerError{
     msg: String,
     backtrace: Backtrace,  // automatically detected
@@ -52,19 +53,53 @@ mod tests {
         Ok(())
     }
     #[test]
-    //运行test，将会看到
+    //运行test，将会看到Error: Other(ParseIntError { kind: InvalidDigit })
     fn test_common_other_error() -> Result<(),CommonError> {
         let result = "input".parse::<i32>()?;
         println!("{:?}", result);
         Ok(())
     }
     #[test]
+    //运行test，将会打印invalid rdo_lookahead_frames non_existent_file.txt
+    fn test_my_error_without(){
+        let result = std::fs::read_to_string("non_existent_file.txt");
+        let result  = result.map_err(|err| MyError{
+            msg: String::from("non_existent_file.txt"),
+            source:CommonError::Io(err)
+        });
+        match result {
+            Ok(_) => {},
+            Err(err) =>{
+                println!("{err}");
+            }
+        }
+    }
+    #[test]
     // 运行test,将会看到Error: MyError { msg: "non_existent_file.txt", source: Io(Os { code: 2, kind: NotFound, message: "No such file or directory" }) }
     fn test_my_error()->Result<(),MyError>{
         let result = std::fs::read_to_string("non_existent_file.txt");
-        let _ = result.map_err(|err| MyError{
+        let result  = result.map_err(|err| MyError{
             msg: String::from("non_existent_file.txt"),
             source:CommonError::Io(err)
+        });
+        match result {
+            Ok(_) => {},
+            Err(err) =>{
+                println!("{err}");
+            }
+        }
+
+        Ok(())
+    }
+    #[test]
+    //运行代码需要nightly版本
+    fn test_custome_error()->Result<(),CutomerError>{
+        let result = std::fs::read_to_string("non_existent_file.txt");
+        let _ = result.map_err(|e|{
+            CutomerError{
+                msg: String::from( e.to_string() + " non_existent_file.txt"),
+                backtrace :Backtrace::capture()
+            }
         })?;
 
         Ok(())
