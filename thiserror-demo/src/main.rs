@@ -7,6 +7,7 @@ fn main() {
     println!(" hellow this error");
 }
 
+
 #[derive(Debug, Error)]
 #[allow(dead_code)]
 enum CommonError {
@@ -25,7 +26,7 @@ enum CommonError {
 pub struct MyError {
     msg: String,
     #[source]
-    source: CommonError,
+    source: CommonError
 }
 
 #[derive(Error, Debug)]
