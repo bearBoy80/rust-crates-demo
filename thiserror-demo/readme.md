@@ -48,7 +48,7 @@ pub enum MyError {
 }
 ```
 ### `#[from]`
-这个属性可以应用于单个字段,实现From traint,主要用于将其他Error转换成指定的Error。
+这个属性可以应用于单个字段,实现From traint,主要用于将指定Error转换成对应的自定义Error。
 ```rust
 #[derive(Error, Debug)]
 pub enum MyError {

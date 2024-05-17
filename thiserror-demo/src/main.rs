@@ -14,7 +14,7 @@ enum CommonError {
     //将错误信息转换成特定的格式
     #[error("Api error info : `{0}` ")]
     ApiError(String),
-    //#[From]可以将错误转换成特定的Error
+    //#[From]可以将特定的错误转换成CommonErrorr
     #[error("An IO error occurred: {0}")]
     Io(#[from] io::Error),
     // 直接打印原始信息
